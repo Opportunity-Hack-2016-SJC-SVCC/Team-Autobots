@@ -108,8 +108,8 @@ var cronJob = cron.job('00 06 03 * * *', function(){
 
 cronJob.start();
 
-var cronJob2 = cron.job('00 49 05  * * *', function(){
-var decoder = new StringDecoder('utf8');
+var cronJob2 = cron.job('00 04 13 * * *', function(){
+console.log("here");
 // Delete old records  
  var res = request ('GET','http://autobots-nagesh-sk.c9users.io/api/houses/DeleteRecords');
 // get all users       
