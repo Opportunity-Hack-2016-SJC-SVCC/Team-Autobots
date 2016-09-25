@@ -77,7 +77,7 @@ connection.connect();
 // //HTTP to FAMILY INSERT
 app.post('/api/houses/family', function (req, res) {
 
-     console.log(req.body.name);
+   //  console.log(req.body.name);
      var body = req.body;
      var user = {
     
@@ -87,23 +87,25 @@ app.post('/api/houses/family', function (req, res) {
     company : body.company,
     phone : body.phone,
     zipcode : body.zipcode,
-    delete_id : 0, 
-    last_modified : new Date().getTime()
+    delete_id : 0,
+    //last_modified : new Date().getTime()
     
 }
 var result =[];
-  var queryStr = "select  from family_house where developer =" +user.developer+"and address ="+user.address +"and company="+user.company;
+  var queryStr = "select * from family_house where developer = '" +user.developer+"' AND address = '"+user.address +"' AND company = '"+user.company+"'";
   console.log("Query is "+queryStr);
   
   connection.query(queryStr, function(err, rows, fields) {
-      if (!err){
+      if (err){
+          console.log(err);
+      }else{
         console.log('The solution is: ', rows);
-		if(rows.length ==0) {
+		if(rows == undefined || rows.length == 0) {
     try{
    connection.query('INSERT INTO family_house SET ?', user, function(err,res){
-       
-            //if(err) throw err;
-   //console.log('Last inserted ID:',body.name);
+       console.log('Last inserted ID:',res);
+            if(err) throw err;
+   console.log('Last inserted ID:',body.name);
    });
         
     }
@@ -113,8 +115,10 @@ var result =[];
    }
    }else {
 try{
-   connection.query('UPDATE family_house SET delete_id=0 WHERE developer = ' +user.developer+"and address ="+user.address +"and company="+user.company, user, function(err,res){       
-           
+   connection.query("UPDATE family_house SET delete_id=0 WHERE developer = '" +user.developer+"AND address = '"+user.address +"' AND company= '"+user.company+"'", function(err,res){       
+           if(err){
+               console.log(err);
+           }
    });
         
     }
@@ -133,7 +137,10 @@ try{
 app.get('/api/houses/markDelete', function (req, res) {
 
     try{
-   connection.query('UPDATE family_house SET delete_id=1' , user, function(err,res){
+   connection.query('UPDATE family_house SET delete_id=1' ,function(err,res){
+       if(err){
+           console.log(err);
+       }
        
    });
         
@@ -152,7 +159,10 @@ app.get('/api/houses/markDelete', function (req, res) {
 app.get('/api/houses/DeleteRecords', function (req, res) {
 
     try{
-   connection.query('DELETE family_house where delete_id=1' , user, function(err,res){
+   connection.query('DELETE family_house where delete_id=1' , function(err,res){
+       if(err ){
+  console.log("Error occured"+err);
+       }
        
    });
         
@@ -177,8 +187,10 @@ console.log(req.body.name);
     var zipcode = body.zipcode;
     
     try{
-   connection.query('UPDATE user_info SET last_notified = '+last_notified +"where phone ="+phone+"and zipcode="+zipcode , function(err,res){
-       
+   connection.query("UPDATE user_info SET last_notified = '"+last_notified +"'where phone = '"+phone+"' AND zipcode = '"+zipcode+"'" , function(err,res){
+       if(err){
+           console.log(err);
+       }
    });
         
     }
@@ -198,7 +210,7 @@ console.log(req.body.name);
 app.get('/api/houses/family', function(req, res){
 
   var result =[];
-  var queryStr = "select * from family_house where delete_id == 0";
+  var queryStr = "select * from family_house where delete_id = 0";
   console.log("Query is "+queryStr);
   
    connection.query(queryStr, function(err, rows, fields) {
@@ -396,10 +408,10 @@ app.get('/api/houses/special', function(req, res){
       });
 });
 
-app.get('/api/houses/special/:zipcode/:category', function(req, res){
+app.get('/api/houses/special/:zipcode', function(req, res){
 
   var result =[];
-  var queryStr = "select * from special_house where zipcode="+req.params.zipcode+", category="+req.params.category;
+  var queryStr = "select * from special_house where zipcode="+req.params.zipcode;
   console.log("Query is "+queryStr);
   connection.query(queryStr, function(err, rows, fields) {
       if (!err){
@@ -417,10 +429,10 @@ app.get('/api/houses/special/:zipcode/:category', function(req, res){
       });
 });
 
-app.get('/api/houses/family/:zipcode/:category', function(req, res){
+app.get('/api/houses/family/:zipcode', function(req, res){
 
   var result =[];
-  var queryStr = "select * from family_house where zipcode="+req.params.zipcode+" category="+req.params.category;
+  var queryStr = "select * from family_house where zipcode="+req.params.zipcode;
   console.log("Query is "+queryStr);
   connection.query(queryStr, function(err, rows, fields) {
       if (!err){
@@ -438,10 +450,10 @@ app.get('/api/houses/family/:zipcode/:category', function(req, res){
       });
 });
 
-app.get('/api/houses/senior/:zipcode/:category', function(req, res){
+app.get('/api/houses/senior/:zipcode', function(req, res){
 
   var result =[];
-  var queryStr = "select * from senior_house where zipcode="+req.params.zipcode+" category="+req.params.category;
+  var queryStr = "select * from senior_house where zipcode="+req.params.zipcode;
   console.log("Query is "+queryStr);
   connection.query(queryStr, function(err, rows, fields) {
       if (!err){
@@ -464,7 +476,7 @@ app.get('/api/houses/senior/:zipcode/:category', function(req, res){
 app.get('/api/user/subscribe/:category', function(req, res){
 
   var result =[];
-  var queryStr = "select * from user_info where category="+req.params.category;
+  var queryStr = "select * from user_info where category='"+req.params.category+"'";
   console.log("Query is "+queryStr);
   connection.query(queryStr, function(err, rows, fields) {
       if (!err){
@@ -521,7 +533,7 @@ app.post('/api/user/subscribe', function (req, res) {
     phone: phone,
     email : body.email,
     zipcode : body.zipcode,
-    category : body.category,
+    category : body.category
     //uncomment: lat : body.lat,
     //uncomment: lng : body.lng,
     //uncomment: miles: body.miles,
@@ -530,14 +542,20 @@ app.post('/api/user/subscribe', function (req, res) {
     
 }
 
-
+    try{
    connection.query('INSERT INTO user_info SET ?', user, function(err,res){
-   if(err) throw err;
-
-   console.log('Inserted :');
+       if(!err){
+        console.log('Inserted :');
+       }
    });
-   res.writeHeader(200, {"Content-Type": "application/json"});
-   res.send();
+        
+    }
+    catch(err){
+        console.log(err);
+    }
+    
+   res.writeHeader(201, {"Content-Type": "text"});
+   res.end();
   
 });
 
