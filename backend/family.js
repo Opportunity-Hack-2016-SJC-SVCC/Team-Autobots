@@ -67,13 +67,13 @@ callback = function(response) {
     'zipcode' : zip_code,
     'lat' : lat,
     'lng' : lng
+    
   };
   
   var res = request('POST', db, {
     json: post_data
   });
   console.log(post_data);
-
   count = 0;
 }
 });
@@ -82,20 +82,53 @@ callback = function(response) {
 
 db='https://autobots-nagesh-sk.c9users.io/api/houses/family';
 
-var cronJob = cron.job('00 00 02 * * *', function(){
+var cronJob = cron.job('00 15 12 * * *', function(){
   request2('http://api.data.sanjoseca.gov/api/v2/datastreams/AFFOR-HOUSI-FAMIL-HOUSI-77081/data.json/?auth_key=10a944b29e6494e3322356d741e97ff8d0b2ae50&limit=1',function(error,response,body){
     if(!error && response.statusCode == 200){
       var bodyData = JSON.parse(body);
       var dt = new Date(bodyData.modified_at);
       if(lastModifiedDate == null || dt > lastModifiedDate){
         lastModifiedDate = dt;
+        // MarkEverything to Delete
+         var res = request ('GET','/api/houses/markDelete');
         http.get('http://api.data.sanjoseca.gov/api/v2/datastreams/AFFOR-HOUSI-FAMIL-HOUSI-77081/data.json/?auth_key=10a944b29e6494e3322356d741e97ff8d0b2ae50', callback).end();
       }  
-    }
+}
   });
 });
 
 cronJob.start();
 
+var cronJob2 = cron.job('00 20 12 * * *', function(){
 
+// Delete old records  
+ var res = request ('GET','https://autobots-nagesh-sk.c9users.io/api/houses/DeleteRecords');
+// get all users        
+   var users = request ('GET','https://autobots-nagesh-sk.c9users.io/api/user/subscribe/:family');
+    if(!error && users.statusCode == 200){
+     var user_arr = JSON.parse(users.getBody());
+      //check if this user needs notifications 
+      for (var i = 0; i < user_arr.length; i++){
+      user = user_arr[i];
+// get all houses from family
+  var houses = request ('GET','https://autobots-nagesh-sk.c9users.io/api/houses/family');
+  for (var j = 0; j < houses.length; j++){
+      house = houses[i];    
+  if(user.last_notified < house.last_modified){
+  console.log("sending SMS for "+ user.phone+"\n");  
+}
+}
+// update user last_notified 
+ var res = request('POST', /api/houses/updateLastNotified, {
+    json: {last_notified:new Date(),
+    phone:user.phone,
+    zipcode :zipcode
+}
+});
+}
+}
+
+});
+
+cronJob2.start();
 
