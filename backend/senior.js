@@ -84,12 +84,10 @@ var cronJob = cron.job('00 00 02 * * *', function(){
     if(!error && response.statusCode == 200){
       var bodyData = JSON.parse(body);
       var dt = new Date(bodyData.modified_at);
-      if(lastModifiedDate == null){
+      if(lastModifiedDate == null || dt > lastModifiedDate){
         lastModifiedDate = dt;
         http.get('http://api.data.sanjoseca.gov/api/v2/datastreams/AFFOR-SENIO-HOUSI-UNITS/data.json/?auth_key=10a944b29e6494e3322356d741e97ff8d0b2ae50', callback).end();
-      } else if(dt > lastModifiedDate){
-        http.get('http://api.data.sanjoseca.gov/api/v2/datastreams/AFFOR-SENIO-HOUSI-UNITS/data.json/?auth_key=10a944b29e6494e3322356d741e97ff8d0b2ae50', callback).end();
-      }   
+      }
     }
   });
 });
