@@ -34,7 +34,7 @@ while (count < header ) {
  index++;
 }
 
-var res = request ('GET','https://maps.googleapis.com/maps/api/geocode/json?address='+obj[2].fStr+'&key=AIzaSyCV683pvLzbobqClUaGZXz3NbIUVITSKEg');
+var res = request ('GET','https://maps.googleapis.com/maps/api/geocode/json?address='+obj[2].fStr+'&key=AIzaSyC63VEBroUtm9pGK8VAC-nzGHToYXiKPCs');
   
 
 var jsonObject2 = JSON.parse(res.getBody());
@@ -69,4 +69,4 @@ count = 0;
  }
 
 db ='https://autobots-nagesh-sk.c9users.io/api/houses/senior';
-var req1 = http.get('http://api.data.sanjoseca.gov/api/v2/datastreams/AFFOR-SENIO-HOUSI-UNITS/data.json/?
+var req1 = http.get('http://api.data.sanjoseca.gov/api/v2/datastreams/AFFOR-SENIO-HOUSI-UNITS/data.json/?auth_key=10a944b29e6494e3322356d741e97ff8d0b2ae50', callback).end();
