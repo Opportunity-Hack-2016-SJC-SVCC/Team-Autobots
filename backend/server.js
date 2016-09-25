@@ -180,14 +180,16 @@ app.get('/api/houses/DeleteRecords', function (req, res) {
 
 //  Update user last notified records of delete_id = 1
 app.post('/api/houses/updateLastNotified', function (req, res) {
-console.log(req.body.name);
     var body = req.body;
-    var last_notified = body.last_modified;
+    var last_notified = body.last_notified;
     var phone = body.phone;
     var zipcode = body.zipcode;
-    
+    console.log(body);
     try{
-   connection.query("UPDATE user_info SET last_notified = '"+last_notified +"'where phone = '"+phone+"' AND zipcode = '"+zipcode+"'" , function(err,res){
+        var query_line = "UPDATE user_info SET last_notified = '"+last_notified +"'where phone = '"+phone+"' AND zipcode = '"+zipcode+"'" ;
+        console.log(query_line);
+   connection.query(query_line, function(err,res){
+       console.log(res);
        if(err){
            console.log(err);
        }
@@ -204,13 +206,34 @@ console.log(req.body.name);
   
 });
 
+app.get('/api/houses/familyfilter/:zipcode/:modi_date', function(req, res){
+
+  var result =[];
+  var queryStr = "select * from family_house where delete_id = 0 AND zipcode ='"+ req.params.zipcode+"' AND last_modified > '"+req.params.modi_date+"'";
+  console.log("Query is "+queryStr);
+  
+   connection.query(queryStr, function(err, rows, fields) {
+       if (!err){
+         console.log('The solution is: ', rows);
+ 		for(var i = 0; i<rows.length; i++){
+
+			result.push(rows[i]);
+ 		}
+ 		  	res.send(result);
+ 	}
+
+      else{
+               console.log('Error while performing Query.'+err);
+       }
+       });
+});
 
 
 
 app.get('/api/houses/family', function(req, res){
 
   var result =[];
-  var queryStr = "select * from family_house where delete_id = 0";
+  var queryStr = "select * from family_house where delete_id = 0 ";
   console.log("Query is "+queryStr);
   
    connection.query(queryStr, function(err, rows, fields) {
@@ -408,10 +431,10 @@ app.get('/api/houses/special', function(req, res){
       });
 });
 
-app.get('/api/houses/special/:zipcode', function(req, res){
+app.get('/api/houses/special/:zipcode/:category', function(req, res){
 
   var result =[];
-  var queryStr = "select * from special_house where zipcode="+req.params.zipcode;
+  var queryStr = "select * from special_house where zipcode="+req.params.zipcode+", category="+req.params.category;
   console.log("Query is "+queryStr);
   connection.query(queryStr, function(err, rows, fields) {
       if (!err){
@@ -429,10 +452,10 @@ app.get('/api/houses/special/:zipcode', function(req, res){
       });
 });
 
-app.get('/api/houses/family/:zipcode', function(req, res){
+app.get('/api/houses/family/:zipcode/:category', function(req, res){
 
   var result =[];
-  var queryStr = "select * from family_house where zipcode="+req.params.zipcode;
+  var queryStr = "select * from family_house where zipcode="+req.params.zipcode+" category="+req.params.category;
   console.log("Query is "+queryStr);
   connection.query(queryStr, function(err, rows, fields) {
       if (!err){
@@ -450,10 +473,10 @@ app.get('/api/houses/family/:zipcode', function(req, res){
       });
 });
 
-app.get('/api/houses/senior/:zipcode', function(req, res){
+app.get('/api/houses/senior/:zipcode/:category', function(req, res){
 
   var result =[];
-  var queryStr = "select * from senior_house where zipcode="+req.params.zipcode;
+  var queryStr = "select * from senior_house where zipcode="+req.params.zipcode+" category="+req.params.category;
   console.log("Query is "+queryStr);
   connection.query(queryStr, function(err, rows, fields) {
       if (!err){
